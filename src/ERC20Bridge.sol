@@ -51,6 +51,10 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
         relayers[relayer] = true;
     }
 
+    function setThreshold(uint256 _threshold) external onlyOwner {
+        threshold = _threshold;
+    }
+
     function removeRelayer(address relayer) external onlyOwner {
         relayers[relayer] = false;
     }
@@ -81,19 +85,9 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
 
         lockNonce++;
 
-        IERC20(token).safeTransferFrom(
-            msg.sender,
-            address(this),
-            amount
-        );
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
-        emit Locked(
-            token,
-            msg.sender,
-            cosmosRecipient,
-            amount,
-            lockNonce
-        );
+        emit Locked(token, msg.sender, cosmosRecipient, amount, lockNonce);
     }
 
     // -----------------------------
@@ -104,7 +98,6 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
         Claim calldata claim,
         bytes[] calldata signatures
     ) external nonReentrant whenNotPaused {
-
         require(claim.evmChainId == chainId, "wrong chain");
         require(!processedUnlockNonces[claim.nonce], "already processed");
         require(supportedTokens[claim.token], "unsupported token");
@@ -129,39 +122,32 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
 
         IERC20(claim.token).safeTransfer(claim.to, claim.amount);
 
-        emit Unlocked(
-            claim.token,
-            claim.to,
-            claim.amount,
-            claim.nonce
-        );
+        emit Unlocked(claim.token, claim.to, claim.amount, claim.nonce);
     }
 
     // -----------------------------
     // INTERNAL
     // -----------------------------
 
-    function getMessageHash(Claim calldata claim)
-        public
-        pure
-        returns (bytes32)
-    {
-        return keccak256(
-            abi.encode(
-                claim.evmChainId,
-                claim.token,
-                claim.to,
-                claim.amount,
-                claim.nonce
-            )
-        );
+    function getMessageHash(
+        Claim calldata claim
+    ) public pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    claim.evmChainId,
+                    claim.token,
+                    claim.to,
+                    claim.amount,
+                    claim.nonce
+                )
+            );
     }
 
-    function recoverSigner(bytes32 hash, bytes memory signature)
-        internal
-        pure
-        returns (address)
-    {
+    function recoverSigner(
+        bytes32 hash,
+        bytes memory signature
+    ) internal pure returns (address) {
         bytes32 ethSignedHash = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
         );
@@ -170,11 +156,9 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
         return ecrecover(ethSignedHash, v, r, s);
     }
 
-    function splitSignature(bytes memory sig)
-        internal
-        pure
-        returns (bytes32 r, bytes32 s, uint8 v)
-    {
+    function splitSignature(
+        bytes memory sig
+    ) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
         require(sig.length == 65, "invalid signature");
 
         assembly {
@@ -184,11 +168,10 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
         }
     }
 
-    function isDuplicate(address[] memory arr, address signer)
-        internal
-        pure
-        returns (bool)
-    {
+    function isDuplicate(
+        address[] memory arr,
+        address signer
+    ) internal pure returns (bool) {
         for (uint256 i = 0; i < arr.length; i++) {
             if (arr[i] == signer) {
                 return true;
