@@ -66,3 +66,25 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+### FOR TESTING
+
+```
+source .env
+```
+
+```
+cast send $POLYGON_TEST_TOKEN_ADDR \
+"approve(address,uint256)" \
+$BRIDGE_ADDRESS 1000000000000000000 \
+--private-key $PRIVATE_KEY \
+--rpc-url $RPC_POLYGON_TEST_URL
+```
+
+```
+cast send $POLYGON_TEST_CONTRACT_ADDR \
+"lock(address,uint256,string)" \
+$POLYGON_TEST_TOKEN_ADDR 1000000000000000000 bettery1se3ugp5026ty89mxrd2gra7ptyfcge0srvjmme \
+--private-key $PRIVATE_KEY \
+--rpc-url $RPC_POLYGON_TEST_URL
+```
