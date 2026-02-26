@@ -40,7 +40,7 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
         uint256 nonce
     );
 
-    constructor(uint256 _threshold) Ownable(msg.sender) {
+    constructor() Ownable(msg.sender) {
         chainId = block.chainid;
     }
 
