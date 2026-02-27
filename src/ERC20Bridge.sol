@@ -91,7 +91,13 @@ contract ERC20Bridge is ReentrancyGuard, Pausable, Ownable {
         processedUnlockNonces[claim.nonce] = true;
         unlockedAmount += claim.amount;
 
-        IERC20(claim.token).safeTransfer(claim.to, claim.amount);
+        IERC20(address(claim.token)).approve(address(this), claim.amount);
+        IERC20(address(claim.token)).safeTransferFrom(
+            address(this),
+            claim.to,
+            claim.amount
+        );
+        //IERC20(address(claim.token)).safeTransfer(claim.to, claim.amount);
 
         emit Unlocked(claim.token, claim.to, claim.amount, claim.nonce);
     }
