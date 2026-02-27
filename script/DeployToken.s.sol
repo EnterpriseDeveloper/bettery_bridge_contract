@@ -10,7 +10,7 @@ contract DeployToken is Script {
 
         vm.startBroadcast(deployerKey);
 
-        TestToken token = new TestToken(vm.addr(deployerKey));
+        new TestToken(vm.addr(deployerKey));
 
         vm.stopBroadcast();
     }

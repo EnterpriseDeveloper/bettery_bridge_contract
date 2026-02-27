@@ -10,7 +10,7 @@ contract DeployBridge is Script {
 
         vm.startBroadcast(deployerKey);
 
-        ERC20Bridge bridge = new ERC20Bridge();
+        new ERC20Bridge();
 
         vm.stopBroadcast();
     }
